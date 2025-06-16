@@ -7,6 +7,12 @@ import (
 	"github.com/craizytech/todo-cli/task"
 )
 
+var (
+	ErrTaskExists    = errors.New("task already exists")
+	ErrTaskNotFound  = errors.New("task not found")
+	ErrTaskEmptyName = errors.New("task name cannot be empty")
+)
+
 type InMemoryStore struct {
 	tasks []task.Task
 }
@@ -17,11 +23,11 @@ func NewInMemoryStore() *InMemoryStore {
 
 func (s *InMemoryStore) Add(t task.Task) error {
 	if len(strings.TrimSpace(t.Name)) == 0 {
-		return errors.New("task name cannot be empty")
+		return ErrTaskEmptyName
 	}
 
 	if s.Exists(t.Name) {
-		return errors.New("task already exists")
+		return ErrTaskExists
 	}
 
 	s.tasks = append(s.tasks, t)
@@ -35,7 +41,7 @@ func (s *InMemoryStore) Delete(name string) error {
 			return nil
 		}
 	}
-	return errors.New("task not found")
+	return ErrTaskNotFound
 }
 
 func (s *InMemoryStore) MarkAsDone(name string) error {
@@ -45,7 +51,7 @@ func (s *InMemoryStore) MarkAsDone(name string) error {
 			return nil
 		}
 	}
-	return errors.New("task not found")
+	return ErrTaskNotFound
 }
 
 func (s *InMemoryStore) List() []task.Task {
